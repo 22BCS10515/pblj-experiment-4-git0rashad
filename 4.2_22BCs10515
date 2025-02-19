@@ -1,0 +1,49 @@
+class TicketBookingSystem {
+    private boolean[] seats = new boolean[5]; // Array to track booked seats (false = available)
+
+    // Synchronized method to book a seat
+    public synchronized void bookSeat(int seatNumber, String userType) {
+        if (!seats[seatNumber]) { // Check if seat is available
+            seats[seatNumber] = true; // Mark seat as booked
+            System.out.println(userType + " booked Seat " + seatNumber);
+        } else {
+            System.out.println(userType + " failed to book Seat " + seatNumber + " (Already booked)");
+        }
+    }
+}
+
+// Thread for booking seats
+class BookingThread extends Thread {
+    private TicketBookingSystem system;
+    private int seatNumber;
+    private String userType;
+    public BookingThread(TicketBookingSystem system, int seatNumber, String userType, int priority) {
+        this.system = system;
+        this.seatNumber = seatNumber;
+        this.userType = userType;
+        setPriority(priority); // Set thread priority
+    }
+
+    public void run() {
+        system.bookSeat(seatNumber, userType);
+    }
+}
+
+// Main class
+public class TicketBooking {
+    public static void main(String[] args) {
+        TicketBookingSystem system = new TicketBookingSystem();
+
+        // Creating booking threads
+        BookingThread vip1 = new BookingThread(system, 1, "VIP User", Thread.MAX_PRIORITY); 
+        BookingThread user1 = new BookingThread(system, 1, "Regular User", Thread.MIN_PRIORITY); 
+        BookingThread vip2 = new BookingThread(system, 2, "VIP User", Thread.MAX_PRIORITY);
+        BookingThread user2 = new BookingThread(system, 2, "Regular User", Thread.MIN_PRIORITY);
+
+        // Start threads
+        vip1.start();
+        user1.start();
+        vip2.start();
+        user2.start();
+    }
+}
